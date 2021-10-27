@@ -63,6 +63,7 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="PathInfos.cs" />
     <Compile Include="Pool.cs" />
     <Compile Include="ProcessExtensions.cs" />
     <Compile Include="Program.cs" />
