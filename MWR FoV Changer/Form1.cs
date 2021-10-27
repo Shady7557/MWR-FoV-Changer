@@ -6,46 +6,47 @@ namespace MWR_FoV_Changer
 {
     public partial class Form1 : Form
     {
-        ProcessMemory mwr;
-        public Form1()
-        {
-            InitializeComponent();
-        }
+        private ProcessMemory _mwr;
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            DoFoV();
-        }
+        public Form1() => InitializeComponent();
+        
 
-        ProcessMemory getProcessMemory(string processName)
+        private void Form1_Load(object sender, EventArgs e) => DoFoV();
+        
+
+        private ProcessMemory GetProcessMemory(string processName)
         {
             if (string.IsNullOrEmpty(processName)) return null;
-            if (processName.Contains(".exe")) processName = processName.Replace(".exe", string.Empty);
+
+
             var mem = new ProcessMemory(processName);
+
             if (mem != null && mem.CheckProcess())
             {
                 mem.StartProcess();
                 return mem;
             }
+
             return null;
         }
 
-
-        int getIntPointerAddress(IntPtr baseAddress, int offset, ProcessMemory procMem)
+        private int getIntPointerAddress(IntPtr baseAddress, int offset, ProcessMemory procMem)
         {
-            if (procMem == null) return 0;
-            var pointer = 0;
+            if (procMem == null) throw new ArgumentNullException(nameof(procMem));
+
+            int pointer;
             var pointedTo = BitConverter.ToInt32(procMem.ReadMem(baseAddress.ToInt32(), 4), 0);
+
             pointer = IntPtr.Add((IntPtr)Convert.ToInt32(pointedTo.ToString("X"), 16), offset).ToInt32();
             return pointer;
         }
 
-        void DoFoV()
+        private void DoFoV()
         {
             try
             {
-                if (mwr == null || !mwr.CheckProcess()) mwr = getProcessMemory("h1_sp64_ship");
-                if (mwr == null)
+                if (_mwr == null || !_mwr.CheckProcess()) _mwr = GetProcessMemory("h1_sp64_ship");
+                if (_mwr == null)
                 {
                     label3.Text = "Status: failed to find process";
                     return;
@@ -59,17 +60,17 @@ namespace MWR_FoV_Changer
                 var FoVAddr = 0x14C234A70;
                 var vmFoVAddr = 0x14C234D70;
 
-                var currentFoV = BitConverter.ToSingle(mwr.ReadMem(FoVAddr, 4), 0);
-                var currentVMFoV = BitConverter.ToSingle(mwr.ReadMem(vmFoVAddr, 4), 0);
+                var currentFoV = BitConverter.ToSingle(_mwr.ReadMem(FoVAddr, 4), 0);
+                var currentVMFoV = BitConverter.ToSingle(_mwr.ReadMem(vmFoVAddr, 4), 0);
                 if (checkBox1.Checked && currentFoV <= 64)
                 {
                     label3.Text = "Status: not changing fov because cinematic mode";
                     return;
                 }
-                mwr.WriteFloat(FoVAddr, fov);
-                mwr.WriteFloat(vmFoVAddr, vmFoV);
+                _mwr.WriteFloat(FoVAddr, fov);
+                _mwr.WriteFloat(vmFoVAddr, vmFoV);
                 label3.Text = "Status: Found process and wrote to memory";
-                label2.Text = "Cur fov: " + BitConverter.ToSingle(mwr.ReadMem(FoVAddr, 4), 0) + " VM: " + BitConverter.ToSingle(mwr.ReadMem(vmFoVAddr, 4), 0);
+                label2.Text = "Cur fov: " + BitConverter.ToSingle(_mwr.ReadMem(FoVAddr, 4), 0) + " VM: " + BitConverter.ToSingle(_mwr.ReadMem(vmFoVAddr, 4), 0);
             }
             catch(Exception ex)
             {

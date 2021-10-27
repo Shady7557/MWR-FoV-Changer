@@ -147,6 +147,13 @@ namespace ReadWriteMemory
             ReadProcessMemory(processHandle, lpBaseAddress, buffer, pSize, 0);
             return buffer;
         }
+
+        public byte[] ReadMem(long pOffset, int pSize)
+        {
+            byte[] buffer = new byte[pSize];
+            ReadProcessMemory(processHandle, pOffset, buffer, pSize, 0);
+            return buffer;
+        }
         #endregion
         #region Writing
         public void WriteByte(int pOffset, byte pBytes) => WriteMem(pOffset, BitConverter.GetBytes(pBytes));
@@ -159,6 +166,7 @@ namespace ReadWriteMemory
         public void WriteDouble(string Module, int pOffset, double pBytes) => WriteMem(DllImageAddress(Module) + pOffset, BitConverter.GetBytes(pBytes));
 
         public void WriteFloat(int pOffset, float pBytes) => WriteMem(pOffset, BitConverter.GetBytes(pBytes));
+        public void WriteFloat(long pOffset, float pBytes) => WriteMem(pOffset, BitConverter.GetBytes(pBytes));
         public void WriteFloat(bool AddToImageAddress, int pOffset, float pBytes) => WriteMem(pOffset, BitConverter.GetBytes(pBytes), AddToImageAddress);
         public void WriteFloat(string Module, int pOffset, float pBytes) => WriteMem(DllImageAddress(Module) + pOffset, BitConverter.GetBytes(pBytes));
 
@@ -173,6 +181,7 @@ namespace ReadWriteMemory
 
 
         public void WriteMem(int pOffset, byte[] pBytes) => WriteProcessMemory(processHandle, pOffset, pBytes, pBytes.Length, 0);
+        public void WriteMem(long pOffset, byte[] pBytes) => WriteProcessMemory(processHandle, pOffset, pBytes, pBytes.Length, 0);
         public void WriteMem(int pOffset, byte[] pBytes, bool AddToImageAddress) => WriteProcessMemory(processHandle, AddToImageAddress ? ImageAddress(pOffset) : pOffset, pBytes, pBytes.Length, 0);
         public void WriteMem(int pOffset, byte[] pBytes, int nsize) => WriteProcessMemory(processHandle, pOffset, pBytes, nsize, 0);
         #endregion
@@ -181,10 +190,16 @@ namespace ReadWriteMemory
         public static extern bool WriteProcessMemory(int hProcess, int lpBaseAddress, byte[] buffer, int size, int lpNumberOfBytesWritten);
 
         [DllImport("kernel32.dll")]
+        public static extern bool WriteProcessMemory(int hProcess, long lpBaseAddress, byte[] buffer, int size, int lpNumberOfBytesWritten);
+
+        [DllImport("kernel32.dll")]
         public static extern bool VirtualProtectEx(int hProcess, int lpAddress, int dwSize, uint flNewProtect, out uint lpflOldProtect);
 
         [DllImport("kernel32.dll")]
         public static extern bool ReadProcessMemory(int hProcess, int lpBaseAddress, byte[] buffer, int size, int lpNumberOfBytesRead);
+
+        [DllImport("kernel32.dll")]
+        public static extern bool ReadProcessMemory(int hProcess, long lpBaseAddress, byte[] buffer, int size, int lpNumberOfBytesRead);
 
         [DllImport("kernel32.dll")]
         public static extern int OpenProcess(uint dwDesiredAccess, bool bInheritHandle, int dwProcessId);
