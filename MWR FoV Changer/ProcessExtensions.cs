@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-//This wasn't written by me. I found it on stackoverflow and nobody seems to have claimed "ownership" of it. I did make some slight modifications
+//This wasn't written by me. I found it on StackOverflow and nobody seems to have claimed "ownership" of it. I did make some slight modifications
 namespace ProcessExtensions
 {
     public class ProcessExtension
